@@ -1,59 +1,58 @@
-# BancaDoors 🚪
+# BancaDoors
 
-Jogo em **primeira pessoa** de múltipla escolha com questões de **TI para concursos**. Você anda por uma sala fechada em 3D e escolhe a resposta atravessando a porta correspondente, o que leva direto à próxima fase. Antes de começar, escolhe a **banca**.
-
-Feito com JavaScript puro (raycasting em `<canvas>`): **sem dependências, sem build, funciona offline**.
+Jogo em primeira pessoa para treinar questões de TI de concursos. Você escolhe a banca, entra numa sala de servidores, lê a questão no telão e caminha até o portal da resposta.
 
 ## Como jogar
 
-Abra o `index.html` no navegador (ou publique no GitHub Pages).
+1. Abra o `index.html` no navegador (funciona direto do arquivo, sem servidor e sem internet).
+2. Escolha a banca, a quantidade de questões, o tempo e os assuntos.
+3. Na sala:
+   - **W A S D** ou setas para andar, **Shift** para correr
+   - **Mouse** para olhar (clique na tela para capturar o mouse)
+   - Para responder, **fique sobre a plataforma** em frente ao portal até a barra encher, ou **mire no portal e aperte E** (ou clique)
+   - **Q** abre o painel de leitura com a questão em texto
+   - **Esc** pausa
+4. Depois de cada resposta aparece o gabarito com comentário. No fim há nota, desempenho por assunto, revisão dos erros e a opção de refazer só as que errou.
 
-| Ação | Controle |
-|---|---|
-| Andar | `W` `A` `S` `D` ou setas ↑ ↓ |
-| Virar | `←` `→`, `Q` `E` ou mouse (clique na tela para capturar o mouse) |
-| Escolher resposta | Atravesse a porta da alternativa (vai direto à próxima fase) |
-| Celular | Botões na tela |
+No celular: arraste no lado esquerdo da tela para andar, no lado direito para olhar, e toque no portal para escolher.
 
-## Bancas incluídas
+## Bancas e regras
 
-Cebraspe (Certo/Errado, erro anula acerto), FCC, FGV, VUNESP, IBFC e Quadrix. Cada uma tem seu próprio banco (mais de 200 questões no total), com tom de enunciado inspirado no estilo da banca.
+| Banca | Formato | Pontuação |
+|---|---|---|
+| Cebraspe | Certo / Errado / Em branco | +1 acerto, −1 erro, 0 em branco |
+| FCC, FGV, Vunesp, Cesgranrio | Múltipla escolha A a E | +1 acerto, 0 erro |
+| Simulado misto | Cada questão segue a regra da sua banca | |
 
-> As questões são **originais**, escritas para este projeto no estilo de cada banca. Não são cópias de provas reais.
+A nota é o total de pontos sobre o número de questões. O corte de aprovação é 60%. O recorde de cada banca fica salvo no navegador.
 
-## Adicionar questões ou bancas
+Assuntos: Redes, Segurança, Banco de Dados, Engenharia de Software, Infra e SO, Programação, Governança e LGPD.
 
-Edite `questions.js` ou `questions-mais.js` (este último acrescenta itens às bancas já existentes).
-
-```js
-// Múltipla escolha (5 alternativas; a = índice da correta, começando em 0)
-{ t: "Redes", q: "Enunciado...", o: ["A", "B", "C", "D", "E"], a: 2, e: "Comentário/explicação." }
-
-// Certo/Errado (tipo: "ce")
-{ t: "Segurança", q: "Afirmativa...", a: true, e: "Comentário." }
-```
-
-Para criar uma nova banca, adicione uma entrada em `window.BANCAS` com `nome`, `cor`, `tipo` (`"mc"` ou `"ce"`), `descricao` e `questoes`.
-
-## Publicar no GitHub
-
-```bash
-git init
-git add .
-git commit -m "Corredor dos Concursos"
-git branch -M main
-git remote add origin https://github.com/SEU_USUARIO/concurso-fps-ti.git
-git push -u origin main
-```
-
-Depois, em **Settings → Pages**, selecione a branch `main` (pasta `/root`) para jogar online.
+As questões são autorais, escritas no estilo de cada banca para treino. Não são questões oficiais.
 
 ## Estrutura
 
 ```
-index.html   # telas e HUD
-style.css    # estilos
-game.js      # motor raycasting, fluxo do jogo, pontuação
-questions.js      # bancos de questões por banca
-questions-mais.js # questões adicionais, somadas às anteriores
+index.html          telas e HUD
+css/estilo.css      visual da interface
+js/mundo.js         cena 3D, movimento, portais e telão (Three.js)
+js/app.js           fluxo do jogo, pontuação, resultado e recordes
+js/audio.js         efeitos sonoros sintetizados (Web Audio)
+js/texto.js         quebra e ajuste de texto para as texturas
+js/dados/           banco de questões, um arquivo por banca
+js/vendor/          Three.js r149 (licença MIT)
 ```
+
+## Como adicionar questões
+
+Edite o arquivo da banca em `js/dados/`:
+
+```js
+// Certo/Errado: true = Certo, false = Errado
+ce('redes', 'Enunciado do item.', true, 'Comentário do gabarito.'),
+
+// Múltipla escolha: a PRIMEIRA alternativa é a correta (o jogo embaralha)
+me('bd', 'Enunciado da questão.', ['correta', 'errada 1', 'errada 2', 'errada 3', 'errada 4'], 'Comentário.'),
+```
+
+Os temas válidos são `redes`, `seguranca`, `bd`, `software`, `infra`, `programacao` e `governanca`.
