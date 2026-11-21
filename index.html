@@ -1,80 +1,156 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>BancaDoors — TI para concursos em primeira pessoa</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>BancaDoors</title>
+  <meta name="description" content="Jogo em primeira pessoa de questões de TI para concursos, no estilo das principais bancas.">
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
+  <canvas id="cena"></canvas>
 
-<canvas id="view"></canvas>
-
-<!-- HUD durante o jogo -->
-<div id="hud" class="hidden">
-  <div id="hudTop">
-    <span id="hudBanca" class="chip"></span>
-    <span id="hudProg" class="chip"></span>
-    <span id="hudScore" class="chip"></span>
-    <button id="btnMenu" class="mini">Menu</button>
-  </div>
-  <div id="painel">
-    <div id="topico"></div>
-    <div id="pergunta"></div>
-    <ol id="opcoes"></ol>
-  </div>
-  <div id="ultima" class="hidden">
-    <div id="ultTitulo"></div>
-    <div id="ultGabarito"></div>
-    <div id="ultComentario"></div>
-  </div>
-  <div id="dica">WASD / setas: andar e virar · mouse: olhar (clique na tela) · atravesse a porta da sua resposta</div>
-</div>
-
-<!-- Controles de toque -->
-<div id="touch" class="hidden">
-  <button data-k="ArrowLeft">⟲</button>
-  <button data-k="ArrowUp">▲</button>
-  <button data-k="ArrowDown">▼</button>
-  <button data-k="ArrowRight">⟳</button>
-</div>
-
-<!-- Menu -->
-<div id="menu" class="overlay">
-  <div class="card">
-    <h1>BancaDoors</h1>
-    <p class="sub">Questões de TI em primeira pessoa. Escolha a banca, ande até a porta da resposta certa.</p>
-    <h2>1. Escolha a banca</h2>
-    <div id="bancas"></div>
-    <h2>2. Quantas questões?</h2>
-    <div id="qtd">
-      <button data-n="5">5</button>
-      <button data-n="10" class="sel">10</button>
-      <button data-n="20">20</button>
-      <button data-n="0">Todas</button>
+  <!-- HUD durante a prova -->
+  <div id="hud" class="oculto">
+    <div class="hud-topo">
+      <span id="hud-banca" class="chip">Banca</span>
+      <span id="hud-progresso">Questão 1/10</span>
+      <span id="hud-placar">0 pts</span>
+      <span id="hud-tempo" class="oculto">--</span>
     </div>
-    <button id="btnJogar" class="primary">Entrar na sala ▶</button>
-    <p class="aviso">Questões originais, escritas no estilo de cada banca — não são reproduções de provas.</p>
-  </div>
-</div>
-
-<!-- Resultado final -->
-<div id="fim" class="overlay hidden">
-  <div class="card">
-    <h1>Resultado</h1>
-    <p id="fimBanca" class="sub"></p>
-    <div id="fimNota"></div>
-    <div id="fimStats"></div>
-    <div id="fimErros"></div>
-    <div class="linha">
-      <button id="btnRepetir" class="primary">Jogar de novo</button>
-      <button id="btnVoltar">Trocar de banca</button>
+    <div id="mira"></div>
+    <div id="hud-aviso" class="oculto"></div>
+    <div class="hud-ajuda">
+      <span><kbd>W A S D</kbd> mover</span>
+      <span><kbd>Mouse</kbd> olhar</span>
+      <span><kbd>E</kbd>/<kbd>clique</kbd> escolher</span>
+      <span><kbd>Q</kbd> ler questão</span>
+      <span><kbd>Esc</kbd> pausar</span>
     </div>
+    <button id="btn-ler-toque" class="botao-toque">Ler</button>
+    <button id="btn-pausa-toque" class="botao-toque">II</button>
   </div>
-</div>
 
-<script src="questions.js"></script>
-<script src="questions-mais.js"></script>
-<script src="game.js"></script>
+  <div id="leitura" class="oculto" aria-live="polite">
+    <div class="leitura-cabecalho">
+      <span id="leitura-meta"></span>
+      <span class="leitura-dica">Q para fechar</span>
+    </div>
+    <p id="leitura-enunciado"></p>
+    <ol id="leitura-alternativas"></ol>
+  </div>
+
+  <div id="joystick"><div id="joystick-pino"></div></div>
+
+  <!-- Menu inicial -->
+  <section id="tela-menu" class="tela">
+    <div class="painel menu">
+      <header class="menu-topo">
+        <div class="logo">Banca<span>Doors</span></div>
+        <p>Entre na sala, leia a questão no telão e caminhe até o portal da resposta certa.</p>
+      </header>
+
+      <h2>1. Escolha a banca</h2>
+      <div id="lista-bancas" class="bancas"></div>
+
+      <h2>2. Monte a prova</h2>
+      <div class="opcoes">
+        <div class="opcao">
+          <span class="rotulo">Questões</span>
+          <div class="segmentos" id="opt-quantidade">
+            <button data-valor="10" class="ativo">10</button>
+            <button data-valor="20">20</button>
+            <button data-valor="30">30</button>
+            <button data-valor="0">Todas</button>
+          </div>
+        </div>
+        <div class="opcao">
+          <span class="rotulo">Tempo por questão</span>
+          <div class="segmentos" id="opt-tempo">
+            <button data-valor="0" class="ativo">Livre</button>
+            <button data-valor="120">2 min</button>
+            <button data-valor="60">1 min</button>
+          </div>
+        </div>
+        <div class="opcao larga">
+          <span class="rotulo">Assuntos</span>
+          <div class="chips" id="opt-temas"></div>
+        </div>
+        <div class="opcao">
+          <label class="rotulo" for="opt-sensibilidade">Sensibilidade do mouse</label>
+          <input type="range" id="opt-sensibilidade" min="0.3" max="2.5" step="0.1" value="1">
+        </div>
+        <div class="opcao">
+          <span class="rotulo">Som</span>
+          <label class="interruptor"><input type="checkbox" id="opt-som" checked><span></span></label>
+        </div>
+      </div>
+
+      <div class="menu-acoes">
+        <span id="resumo-prova"></span>
+        <button id="btn-iniciar" class="botao primario">Entrar na sala</button>
+      </div>
+      <p class="aviso">As questões são autorais, escritas no estilo de cada banca para treino. Não são questões oficiais.</p>
+    </div>
+  </section>
+
+  <!-- Resultado de cada questão -->
+  <section id="tela-feedback" class="tela oculto">
+    <div class="painel feedback">
+      <div id="fb-titulo" class="fb-titulo">Acertou!</div>
+      <div id="fb-pontos" class="fb-pontos"></div>
+      <div class="fb-respostas">
+        <div><span>Sua resposta</span><strong id="fb-sua"></strong></div>
+        <div><span>Gabarito</span><strong id="fb-gabarito"></strong></div>
+      </div>
+      <h3>Comentário</h3>
+      <p id="fb-comentario"></p>
+      <button id="btn-continuar" class="botao primario">Continuar <kbd>Enter</kbd></button>
+    </div>
+  </section>
+
+  <!-- Pausa -->
+  <section id="tela-pausa" class="tela oculto">
+    <div class="painel pausa">
+      <h2>Prova pausada</h2>
+      <p id="pausa-info"></p>
+      <button id="btn-retomar" class="botao primario">Voltar para a sala</button>
+      <button id="btn-encerrar" class="botao">Encerrar e ver resultado</button>
+      <button id="btn-sair" class="botao fantasma">Sair para o menu</button>
+    </div>
+  </section>
+
+  <!-- Resultado final -->
+  <section id="tela-resultado" class="tela oculto">
+    <div class="painel resultado">
+      <div id="res-selo" class="res-selo">Aprovado</div>
+      <div class="res-nota"><span id="res-percentual">0%</span><small id="res-banca"></small></div>
+      <div class="res-numeros" id="res-numeros"></div>
+      <p id="res-recorde" class="res-recorde"></p>
+      <h3>Desempenho por assunto</h3>
+      <div id="res-temas" class="res-temas"></div>
+      <h3 id="res-revisao-titulo">Revisão</h3>
+      <div id="res-revisao" class="res-revisao"></div>
+      <div class="res-acoes">
+        <button id="btn-refazer-erradas" class="botao">Refazer as que errei</button>
+        <button id="btn-de-novo" class="botao primario">Nova prova</button>
+        <button id="btn-menu" class="botao fantasma">Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="fade"></div>
+
+  <script src="js/vendor/three.min.js"></script>
+  <script src="js/texto.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/dados/base.js"></script>
+  <script src="js/dados/cebraspe.js"></script>
+  <script src="js/dados/fcc.js"></script>
+  <script src="js/dados/fgv.js"></script>
+  <script src="js/dados/vunesp.js"></script>
+  <script src="js/dados/cesgranrio.js"></script>
+  <script src="js/mundo.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
