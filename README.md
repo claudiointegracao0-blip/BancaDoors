@@ -17,13 +17,13 @@ Abra o `index.html` no navegador (ou publique no GitHub Pages).
 
 ## Bancas incluídas
 
-Cebraspe (Certo/Errado, erro anula acerto), FCC, FGV, VUNESP, IBFC e Quadrix. Cada uma tem seu próprio banco, com tom de enunciado inspirado no estilo da banca.
+Cebraspe (Certo/Errado, erro anula acerto), FCC, FGV, VUNESP, IBFC e Quadrix. Cada uma tem seu próprio banco (mais de 200 questões no total), com tom de enunciado inspirado no estilo da banca.
 
 > As questões são **originais**, escritas para este projeto no estilo de cada banca. Não são cópias de provas reais.
 
 ## Adicionar questões ou bancas
 
-Edite `questions.js`.
+Edite `questions.js` ou `questions-mais.js` (este último acrescenta itens às bancas já existentes).
 
 ```js
 // Múltipla escolha (5 alternativas; a = índice da correta, começando em 0)
@@ -54,5 +54,6 @@ Depois, em **Settings → Pages**, selecione a branch `main` (pasta `/root`) par
 index.html   # telas e HUD
 style.css    # estilos
 game.js      # motor raycasting, fluxo do jogo, pontuação
-questions.js # bancos de questões por banca
+questions.js      # bancos de questões por banca
+questions-mais.js # questões adicionais, somadas às anteriores
 ```
