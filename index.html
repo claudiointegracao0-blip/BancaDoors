@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>BancaDoors — TI para concursos em primeira pessoa</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="view"></canvas>
+
+<!-- HUD durante o jogo -->
+<div id="hud" class="hidden">
+  <div id="hudTop">
+    <span id="hudBanca" class="chip"></span>
+    <span id="hudProg" class="chip"></span>
+    <span id="hudScore" class="chip"></span>
+    <button id="btnMenu" class="mini">Menu</button>
+  </div>
+  <div id="painel">
+    <div id="topico"></div>
+    <div id="pergunta"></div>
+    <ol id="opcoes"></ol>
+  </div>
+  <div id="ultima" class="hidden">
+    <div id="ultTitulo"></div>
+    <div id="ultGabarito"></div>
+    <div id="ultComentario"></div>
+  </div>
+  <div id="dica">WASD / setas: andar e virar · mouse: olhar (clique na tela) · atravesse a porta da sua resposta</div>
+</div>
+
+<!-- Controles de toque -->
+<div id="touch" class="hidden">
+  <button data-k="ArrowLeft">⟲</button>
+  <button data-k="ArrowUp">▲</button>
+  <button data-k="ArrowDown">▼</button>
+  <button data-k="ArrowRight">⟳</button>
+</div>
+
+<!-- Menu -->
+<div id="menu" class="overlay">
+  <div class="card">
+    <h1>BancaDoors</h1>
+    <p class="sub">Questões de TI em primeira pessoa. Escolha a banca, ande até a porta da resposta certa.</p>
+    <h2>1. Escolha a banca</h2>
+    <div id="bancas"></div>
+    <h2>2. Quantas questões?</h2>
+    <div id="qtd">
+      <button data-n="5">5</button>
+      <button data-n="10" class="sel">10</button>
+      <button data-n="0">Todas</button>
+    </div>
+    <button id="btnJogar" class="primary">Entrar na sala ▶</button>
+    <p class="aviso">Questões originais, escritas no estilo de cada banca — não são reproduções de provas.</p>
+  </div>
+</div>
+
+<!-- Resultado final -->
+<div id="fim" class="overlay hidden">
+  <div class="card">
+    <h1>Resultado</h1>
+    <p id="fimBanca" class="sub"></p>
+    <div id="fimNota"></div>
+    <div id="fimStats"></div>
+    <div id="fimErros"></div>
+    <div class="linha">
+      <button id="btnRepetir" class="primary">Jogar de novo</button>
+      <button id="btnVoltar">Trocar de banca</button>
+    </div>
+  </div>
+</div>
+
+<script src="questions.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
