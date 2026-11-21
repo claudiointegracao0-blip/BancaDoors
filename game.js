@@ -364,7 +364,8 @@ function desenhar() {
     let wx = side === 0 ? p.y + perp * rdy : p.x + perp * rdx;
     wx -= Math.floor(wx);
     let tx = Math.floor(wx * TS);
-    if ((side === 0 && rdx > 0) || (side === 1 && rdy < 0)) tx = TS - 1 - tx;
+    // espelha só quando a direção da tela é oposta à do eixo da textura (evita letras invertidas)
+    if ((side === 0 && rdx < 0) || (side === 1 && rdy > 0)) tx = TS - 1 - tx;
     const tex = S.texs[id] || texBrick;
     ctx.drawImage(tex, tx, 0, 1, TS, x, top, 1, lh);
     const porta = id >= 2 && id < ID_PILAR;
