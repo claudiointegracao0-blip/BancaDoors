@@ -282,7 +282,7 @@ addEventListener('keydown', e => {
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
 canvas.addEventListener('click', () => {
-  if (S.fase === 'jogo' && canvas.requestPointerLock) canvas.requestPointerLock();
+  if (S.fase === 'jogo' && canvas.requestPointerLock) { try { const r = canvas.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) { /* opcional */ } }
 });
 addEventListener('mousemove', e => {
   if (S.fase === 'jogo' && document.pointerLockElement === canvas) S.p.a += e.movementX * 0.0028;
